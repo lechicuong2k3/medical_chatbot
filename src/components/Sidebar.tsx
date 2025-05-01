@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
-import { Menu, MessageSquare, BarChart2, Settings, Moon, Sun, Plus, Trash2, Edit, Check, X } from "lucide-react"
+import { Menu, MessageSquare, BarChart2, Settings, Moon, Sun, Plus, Trash2, Edit, Check, X, LogOut } from "lucide-react"
 import "../styles/Sidebar.css"
 
 interface ChatHistory {
@@ -20,6 +20,7 @@ interface SidebarProps {
   currentChatId?: string | null;
   darkMode?: boolean;
   onToggleDarkMode?: () => void;
+  onLogout?: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
@@ -29,7 +30,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   onDeleteChat,
   currentChatId,
   darkMode: propDarkMode,
-  onToggleDarkMode
+  onToggleDarkMode,
+  onLogout
 }) => {
   const [isExpanded, setIsExpanded] = useState(true)
   const [activeItem, setActiveItem] = useState('chats')
@@ -675,6 +677,10 @@ const Sidebar: React.FC<SidebarProps> = ({
           <button className="nav-item" onClick={handleRemoveAllChatHistory}>
             <Trash2 size={20} />
             {isExpanded && <span>Remove chat history</span>}
+          </button>
+          <button className="nav-item" onClick={onLogout}>
+            <LogOut size={20} />
+            {isExpanded && <span>Logout</span>}
           </button>
         </div>
       </div>

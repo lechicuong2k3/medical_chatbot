@@ -7,7 +7,7 @@ interface AuthProps {
 }
 
 const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
-  const [isSignUp, setIsSignUp] = useState(true);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -97,10 +97,10 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
     <div className="auth-container">
       <div className="auth-content">
         <h1 className="auth-title">
-          Nice to meet you, Doctor
+          Welcome back, Doctor
         </h1>
         <h2 className="auth-subtitle">
-          How can I help you today?
+          Please sign in to continue
         </h2>
         
         {error && <div className="auth-error">{error}</div>}
@@ -169,7 +169,7 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
 
           <button 
             type="submit" 
-            className={`sign-up-button ${isLoading ? 'loading' : ''}`}
+            className={`auth-button ${isLoading ? 'loading' : ''}`}
             disabled={isLoading}
           >
             {isLoading ? 'Please wait...' : (isSignUp ? 'SIGN UP' : 'SIGN IN')}

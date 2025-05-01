@@ -80,7 +80,8 @@
   color: #999;
 }
 
-.sign-up-button {
+.sign-up-button,
+.auth-button {
   background: #4a90e2;
   color: white;
   padding: 14px;
@@ -95,21 +96,25 @@
   overflow: hidden;
 }
 
-.sign-up-button:hover:not(:disabled) {
+.sign-up-button:hover:not(:disabled),
+.auth-button:hover:not(:disabled) {
   background: #357abd;
 }
 
-.sign-up-button:disabled {
+.sign-up-button:disabled,
+.auth-button:disabled {
   background: #ccc;
   cursor: not-allowed;
 }
 
-.sign-up-button.loading {
+.sign-up-button.loading,
+.auth-button.loading {
   background: #357abd;
   cursor: wait;
 }
 
-.sign-up-button.loading::after {
+.sign-up-button.loading::after,
+.auth-button.loading::after {
   content: '';
   position: absolute;
   top: 0;

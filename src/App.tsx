@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import PatientInfo from "./components/PatientInfo"
 import Auth from "./components/Auth"
+import { authService } from "./services/auth"
 
 interface Message {
   text: string
@@ -59,6 +60,14 @@ interface PatientData {
   [key: string]: string | number;
 }
 
+interface UserInfo {
+  username: string;
+  full_name: string;
+  email: string;
+  is_active: boolean;
+  is_admin: boolean;
+}
+
 const App: React.FC = () => {
   const [inputValue, setInputValue] = useState<string>("")
   const [messages, setMessages] = useState<Message[]>([])
@@ -75,6 +84,58 @@ const App: React.FC = () => {
   const [patientData, setPatientData] = useState<PatientData | null>(null)
   const [darkMode, setDarkMode] = useState<boolean>(false)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
+  const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true)
+
+  // Check authentication status on mount
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const token = localStorage.getItem('auth_token');
+      const storedUserInfo = localStorage.getItem('user_info');
+      
+      if (token && storedUserInfo) {
+        try {
+          // Verify the token is still valid by getting user info
+          const userData = await authService.getUserInfo();
+          setUserInfo(userData);
+          setIsAuthenticated(true);
+        } catch (error) {
+          console.error('Session expired or invalid:', error);
+          // Clear invalid session data
+          authService.logout();
+          setUserInfo(null);
+          setIsAuthenticated(false);
+        }
+      } else {
+        setIsAuthenticated(false);
+      }
+      setIsCheckingAuth(false);
+    };
+
+    checkAuthStatus();
+  }, []);
+
+  const handleAuthSuccess = async () => {
+    try {
+      const userData = await authService.getUserInfo();
+      setUserInfo(userData);
+      localStorage.setItem('user_info', JSON.stringify(userData));
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Failed to get user info:', error);
+      // Handle error appropriately
+    }
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    setUserInfo(null);
+    setIsAuthenticated(false);
+    // Clear any other state that should be reset on logout
+    setMessages([]);
+    setConversationHistory([]);
+    setCurrentChatId(null);
+  };
 
   const sampleQuestions: string[] = [
     "What does this X-ray show?", 
@@ -724,10 +785,6 @@ ${Object.entries(patientData)
     }
   };
 
-  const handleAuthSuccess = () => {
-    setIsAuthenticated(true);
-  };
-
   // Apply dark mode class to document when darkMode state changes
   useEffect(() => {
     if (darkMode) {
@@ -736,6 +793,14 @@ ${Object.entries(patientData)
       document.documentElement.classList.remove('dark-mode');
     }
   }, [darkMode]);
+
+  if (isCheckingAuth) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Auth onAuthSuccess={handleAuthSuccess} />;
@@ -751,6 +816,7 @@ ${Object.entries(patientData)
         currentChatId={currentChatId}
         darkMode={darkMode}
         onToggleDarkMode={toggleDarkMode}
+        onLogout={handleLogout}
       />
       <main className="main-content">
         {/* Header - only show if no messages */}
@@ -758,7 +824,7 @@ ${Object.entries(patientData)
           <div className="header">
             <div className="header-content">
               <div>
-                <h1 className="title-primary">Hello, Doctor</h1>
+                <h1 className="title-primary">Hello, Dr. {userInfo?.full_name || 'Doctor'}</h1>
                 <h2 className="title-secondary">How can I help you today?</h2>
               </div>
               <div className="header-controls">
